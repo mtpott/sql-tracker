@@ -74,11 +74,35 @@ const employeeQuestions = [
 const updateEmployee = [
     {
         type: 'list',
-        name: 'update',
-        message: 'what would you like to update?',
-        choices: ['role', 'salary', 'manager']
+        name: 'employee',
+        message: 'which employee would you like to update?',
+
     }
 ]
+
+function showAllDepts(req, res) {
+    const sql =`SELECT * FROM department`;
+    db.query(sql, (err, res) => {
+        if (err) {
+            throw err;
+        }
+        console.table(res);
+    })
+}
+
+function showRoles(req, res) {
+const sql = `SELECT role.*, department.name
+AS dept_name
+FROM role
+LEFT JOIN department
+ON role.department_id = department.id`
+    db.query(sql, (err, res) => {
+        if (err) {
+            throw err;
+        }
+        console.table(res);
+    })
+}
 
 function startPrompt() {
     inquirer.prompt(questions)
@@ -93,6 +117,7 @@ function startPrompt() {
                     throw err;
                 }
                 console.log('department added successfully.');
+                return showAllDepts();
             })
         }
         )} else if (choices === 'view all departments') {
@@ -111,19 +136,7 @@ function startPrompt() {
                 }
             })
             console.log('role added successfully.');
-            })
-            .then (function (req, res) {
-                const sql = `SELECT role.*, department.name
-                AS department_name
-                FROM role
-                LEFT JOIN department
-                ON role.department_id = department.name`
-                db.query(sql, (err, res) => {
-                    if (err) {
-                        throw err;
-                    }
-                    console.table(res);
-                })
+            return showRoles();
             })
         } else if (choices === 'view all roles') {
             db.query(`SELECT * FROM role`, function(err, res) {
@@ -139,7 +152,8 @@ function startPrompt() {
                         throw err;
                     }
                 })
-                console.log('employee added successfully.')
+                console.log('employee added successfully.');
+                //return a function to concat first name and last name together
             })
             .then(function (req, body) {
                 const sql = `SELECT employee.*, role.title
@@ -154,6 +168,7 @@ function startPrompt() {
                     console.table(res);
                 })
             })
+            //return startPrompt();
         } else if (choices === 'view all employees') {
             db.query(`SELECT * FROM employee`, function(err, res) {
                     console.table(res);
@@ -162,10 +177,16 @@ function startPrompt() {
             inquirer.prompt(updateEmployee)
             .then(({ update }) => {
                 if (update === 'role') {
-                    console.log('updated role.'); 
+                    //console.log('updated role.'); 
+                    inquirer.prompt({
+                        type: 'input',
+                        name: 'roleUpdate',
+                        message: 'which role would you like to update?'
+                    })
                 } else if (update === 'salary') {
                     console.log('updated salary.');
-                } else (console.log('updated manager'))
+                } else (console.log('updated manager.'))
+                return startPrompt();
             })
         }
     })
