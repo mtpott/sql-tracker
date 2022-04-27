@@ -1,4 +1,5 @@
 const db = require('../db/connection');
+const inquirer = require('inquirer');
 
 const employeeQuestions = [
     {
@@ -23,6 +24,20 @@ const employeeQuestions = [
     }
 ]
 
+function showAllEmployees() {
+    const sql = `SELECT employee.*, role.title
+        AS role_name
+        FROM employee
+        LEFT JOIN role
+        ON employee.role_id = role.id`;
+        db.query(sql, (err, res) => {
+            if (err) {
+                throw err;
+            }
+            console.table(res);
+        })
+    }
+
 function insertEmployee(req) {
     const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
     const params = [req.first_name, req.last_name, req.role_id, req.manager_id]
@@ -35,17 +50,4 @@ function insertEmployee(req) {
     return showAllEmployees();
 }
 
-function showAllEmployees() {
-const sql = `SELECT employee.*, role.title
-    AS role_name
-    FROM employee
-    LEFT JOIN role
-    ON employee.role_id = role.id`;
-    db.query(sql, (err, res) => {
-        if (err) {
-            throw err;
-        }
-        console.table(res);
-    })
-}
 module.exports = { employeeQuestions, insertEmployee, showAllEmployees };

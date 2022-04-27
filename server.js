@@ -1,6 +1,3 @@
-// WHEN I choose to update an employee role
-// THEN I am prompted to select an employee to update and their new role and this information is updated in the database
-
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 const mysql = require('mysql2');
@@ -26,62 +23,51 @@ const questions = [
     }
 ]
 
-function chooseEmployee() {
-    const employee = [];
-    const sql = `SELECT CONCAT (e2.first_name, ' ', e2.last_name) AS employee
-    FROM employee e
-    JOIN employee e2
-    ON e.id = e2.id`;
-    db.query(sql, (err, res) => {
-        for (let i = 0; i < res.length; i++) {
-            employee.push(res[i].employee)
-        }
-        if (err) throw err;
-        chooseUpdate(employee);
+// this function is basically useless but i was really proud of it so i commented it out and left it in. this function concatenates all employee first and last names and pushes that to an array. i wanted to use it to scroll through to update (for user functionality) but i fought with it for a long time and couldn't get the update statement to work the way i wanted to
+
+// function chooseEmployee() {
+//     const employee = [];
+//     const sql = `SELECT CONCAT (e2.first_name, ' ', e2.last_name) AS employee
+//     FROM employee e
+//     JOIN employee e2
+//     ON e.id = e2.id`;
+//     db.query(sql, (err, res) => {
+//         for (let i = 0; i < res.length; i++) {
+//             employee.push(res[i].employee)
+//         }
+//         if (err) throw err;
+//         chooseUpdate(employee);
+//     })
+// }
+
+function chooseUpdate() {
+    inquirer.prompt(
+    {
+        type: 'input',
+        name: 'update',
+        message: 'which employee would you like to update? enter the correct id number from the employee table to continue.'
+    })
+    .then(({ update }) => {
+        roleChange(update);
     })
 }
 
-function chooseUpdate(employee) {
-    inquirer.prompt(
-        {
-            type: 'list',
-            name: 'update',
-            message: 'which employee would you like to update?',
-            choices: employee
-        })
-    .then(({ update }) => {
-            console.log(update);
-            chooseRole(update);
-        }
-    )
-}
-
-function roleUpdate(role) {
+function roleChange(update) {
     inquirer.prompt
     ({
-        type: 'list',
+        type: 'input',
         name: 'roleUpdate',
-        message: 'which role would you like to update?',
-        choices: role
-    })
+        message: 'which role would you like to update? enter the id number from the role table to continue.'
+    })  
     .then(({roleUpdate}) => {
-        //UPDATE statement for sql database
-        console.log(roleUpdate);
-        //chooseRole();
-    })
-}
-
-function chooseRole(update, i) {
-    const role = [];
-    //console.log('i chose to update', update);
-    const sql = `SELECT title FROM role`;
-    db.query(sql, (err, res) => {
-        for (let i = 0; i < res.length; i++) {
-            role.push(res[i].title)
-        }
-        if (err) throw err;
-        console.log(role);
-        roleUpdate(role);
+        const sql = `UPDATE employee
+        SET role_id = ${roleUpdate}
+        WHERE employee.id = ${update}`;
+        const params = [roleUpdate];
+        db.query(sql, params, (err, res) => {
+            if (err) throw err;
+            return showAllEmployees(res);
+        })
     })
 }
 
@@ -110,11 +96,10 @@ function startPrompt() {
             .then(function (req, body) {
                 
             })
-            //return startPrompt();
         } else if (choices === 'view all employees') {
             return showAllEmployees();
         } else if (choices === 'update employee') {
-        chooseEmployee();
+        chooseUpdate();
         }
     })
 }
