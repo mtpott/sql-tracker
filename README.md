@@ -1,7 +1,7 @@
 # SQL Employee Tracker
 
 ## Table of Contents
-## -[Links](#links)
+### -[Links](#links)
 ### -[Installation](#installation)
 ### -[Technologies](#technologies)
 ### -[Questions](#questions)
@@ -9,6 +9,7 @@
 
 ## Links
 A screenshot of the final project:
+
 ![project-final-image](./assets/images/sql-final-image.png)
 
 ## Screencastify tutorial:
