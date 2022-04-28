@@ -1,6 +1,7 @@
 const db = require('../db/connection');
 const inquirer = require('inquirer');
 
+//questions to gather user information when adding a new employee
 const employeeQuestions = [
     {
         type: 'input',
@@ -24,6 +25,7 @@ const employeeQuestions = [
     }
 ]
 
+//db query called to display the employee table. includes a concat statement to show the employee's role title
 function showAllEmployees() {
     const sql = `SELECT employee.*, role.title
         AS role_name
@@ -38,6 +40,7 @@ function showAllEmployees() {
         })
     }
 
+//db query called to insert a new employee into the table
 function insertEmployee(req) {
     const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
     const params = [req.first_name, req.last_name, req.role_id, req.manager_id]
@@ -50,4 +53,36 @@ function insertEmployee(req) {
     return showAllEmployees();
 }
 
-module.exports = { employeeQuestions, insertEmployee, showAllEmployees };
+//functionality for updating the selected employee's role
+function chooseUpdate() {
+    inquirer.prompt(
+    {
+        type: 'input',
+        name: 'update',
+        message: 'which employee would you like to update? enter the correct id number from the employee table to continue.'
+    })
+    .then(({ update }) => {
+        roleChange(update);
+    })
+}
+
+function roleChange(update) {
+    inquirer.prompt
+    ({
+        type: 'input',
+        name: 'roleUpdate',
+        message: 'which role would you like to update? enter the id number from the role table to continue.'
+    })  
+    .then(({roleUpdate}) => {
+        const sql = `UPDATE employee
+        SET role_id = ${roleUpdate}
+        WHERE employee.id = ${update}`;
+        const params = [roleUpdate];
+        db.query(sql, params, (err, res) => {
+            if (err) throw err;
+            return showAllEmployees(res);
+        })
+    })
+}
+
+module.exports = { employeeQuestions, insertEmployee, showAllEmployees, chooseUpdate };

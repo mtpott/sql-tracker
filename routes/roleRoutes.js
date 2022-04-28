@@ -1,5 +1,6 @@
 const db = require('../db/connection');
 
+//questions to gather user information when adding a new role
 const roleQuestions =[
     {
         type: 'input',
@@ -18,6 +19,7 @@ const roleQuestions =[
     }
 ];
 
+//db query called to insert a new role into the role table. once the role is added, it will appear in the console
 function insertRole(req) {
     const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
     const params = [req.title, req.salary, req.department_id];
@@ -30,6 +32,7 @@ function insertRole(req) {
     return showRoles();
 }
 
+//db query to show all roles. includes a left join statement to join the department name to the role table
 function showRoles(req, res) {
     const sql = `SELECT role.*, department.name
     AS dept_name

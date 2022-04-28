@@ -1,5 +1,6 @@
 const db = require('../db/connection');
 
+//questions to gather user information when adding a new department
 const departmentQuestions =[
     {
         type: 'input',
@@ -8,6 +9,7 @@ const departmentQuestions =[
     }
 ];
 
+//db query to insert a new department into the table. since it's the parent table, nothing is being joined to it, but department.name ends up in the role table.
 function insertDept(req, res) {
     const sql = `INSERT INTO department (name) VALUE (?)`;
     const params = req.name;
@@ -21,6 +23,7 @@ function insertDept(req, res) {
     })
 }
 
+//db query to show the entire department table
 function showAllDepts(req, res) {
     const sql =`SELECT * FROM department`;
     db.query(sql, (err, res) => {
